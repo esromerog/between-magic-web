@@ -12,6 +12,7 @@ import {
   temperatures,
 } from "../drink-options";
 import OrderStep from "../order-step";
+import { locations } from "../recap/locations";
 import { CharacterPreview } from "../preview-image";
 import { useDraft } from "../use-draft";
 
@@ -49,7 +50,8 @@ export default function ConfirmForm() {
           size: { tag: size },
         },
         name,
-        location: { tag: "None" },
+        // Arrived via a QR code: spawn at its location right away.
+        location: { tag: draft.location ? locations[draft.location] : "None" },
       });
       router.push(draftHref("/order/recap", draft));
     } catch (error) {

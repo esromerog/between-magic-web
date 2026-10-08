@@ -3,29 +3,40 @@
 import { useState } from "react";
 import { useSpacetimeDB, useTable } from "spacetimedb/react";
 import { tables, type DbConnection } from "../../lib/module_bindings";
-import { locationLabels, locations } from "./locations";
+import { locationLabels, locations, type LocationKey } from "./locations";
 import { OverlayScanner } from "./scanner";
 
 const label = "choose a location for your character";
 
-type LocationKey = keyof typeof locationLabels;
-
-export function LocationPicker() {
+// `initial` is where the character was already spawned (from the QR link).
+export function LocationPicker({ initial }: { initial?: LocationKey }) {
   const { identity } = useSpacetimeDB();
-  if (!identity) return <ScanButton />;
-  return <PlayerScanButton identity={identity} />;
+  if (!identity) return <ScanButton initial={initial} />;
+  return <PlayerScanButton identity={identity} initial={initial} />;
 }
 
 type Identity = NonNullable<ReturnType<typeof useSpacetimeDB>["identity"]>;
 
-function PlayerScanButton({ identity }: { identity: Identity }) {
+function PlayerScanButton({
+  identity,
+  initial,
+}: {
+  identity: Identity;
+  initial?: LocationKey;
+}) {
   const [players] = useTable(tables.player.where((p) => p.identity.eq(identity)));
   const playerId = players[0]?.playerId;
-  if (playerId === undefined) return <ScanButton />;
-  return <CharacterScanButton playerId={playerId} />;
+  if (playerId === undefined) return <ScanButton initial={initial} />;
+  return <CharacterScanButton playerId={playerId} initial={initial} />;
 }
 
-function CharacterScanButton({ playerId }: { playerId: number }) {
+function CharacterScanButton({
+  playerId,
+  initial,
+}: {
+  playerId: number;
+  initial?: LocationKey;
+}) {
   const [characters] = useTable(
     tables.character.where((c) => c.playerId.eq(playerId)),
   );
@@ -34,14 +45,29 @@ function CharacterScanButton({ playerId }: { playerId: number }) {
       latest === undefined || c.characterId > latest ? c.characterId : latest,
     undefined,
   );
-  return <ScanButton characterId={characterId} />;
+  return <ScanButton characterId={characterId} initial={initial} />;
 }
 
-function ScanButton({ characterId }: { characterId?: number }) {
+// QR codes are links like https://…/?location=location-1; bare codes still work.
+function codeFromScan(value: string) {
+  try {
+    return new URL(value).searchParams.get("location") ?? value;
+  } catch {
+    return value;
+  }
+}
+
+function ScanButton({
+  characterId,
+  initial,
+}: {
+  characterId?: number;
+  initial?: LocationKey;
+}) {
   const { getConnection, isActive } = useSpacetimeDB();
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<LocationKey | null>(null);
-  const [spawned, setSpawned] = useState<LocationKey | null>(null);
+  const [selected, setSelected] = useState<LocationKey | null>(initial ?? null);
+  const [spawned, setSpawned] = useState<LocationKey | null>(initial ?? null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -58,7 +84,8 @@ function ScanButton({ characterId }: { characterId?: number }) {
   };
 
   const handleScan = (value: string) => {
-    const found = Object.hasOwn(locations, value) ? locations[value] : null;
+    const code = codeFromScan(value);
+    const found = Object.hasOwn(locations, code) ? locations[code] : null;
     if (!found) {
       setMessage("something went wrong! that code wasn't valid");
       return;

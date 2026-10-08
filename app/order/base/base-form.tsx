@@ -20,7 +20,7 @@ export default function BaseForm() {
           onChange={(tag) => updateDraft({ drinkBase: tag })}
         />
       }
-      backHref="/order/begin"
+      backHref={draftHref("/order/begin", draft)}
       nextHref={draftHref("/order/flavor", { ...draft, drinkBase })}
     >
       <div className="join w-full">

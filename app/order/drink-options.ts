@@ -5,7 +5,7 @@ import type {
   Size,
   Temperature,
 } from "../lib/module_bindings/types";
-import { locations, type LocationKey } from "./recap/locations";
+import { locations } from "./recap/locations";
 import bananaHojicha from "../assets/character_images/P_bh.png";
 import bananaMatcha from "../assets/character_images/P_bm.png";
 import roastedHojicha from "../assets/character_images/P_h.png";
@@ -116,9 +116,6 @@ export function parseLocation(code: string | null | undefined) {
   return code && Object.hasOwn(locations, code) ? code : undefined;
 }
 
-export function locationFromCode(code: string | undefined): LocationKey | undefined {
-  return code && Object.hasOwn(locations, code) ? locations[code] : undefined;
-}
 
 export function draftToQuery(draft: DrinkDraft): string {
   const params = new URLSearchParams();
