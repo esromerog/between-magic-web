@@ -1,0 +1,143 @@
+"use client";
+
+import { useState } from "react";
+import { useSpacetimeDB, useTable } from "spacetimedb/react";
+import { tables, type DbConnection } from "../../lib/module_bindings";
+import { locationLabels, locations } from "./locations";
+import { OverlayScanner } from "./scanner";
+
+const label = "choose a location for your character";
+
+type LocationKey = keyof typeof locationLabels;
+
+export function LocationPicker() {
+  const { identity } = useSpacetimeDB();
+  if (!identity) return <ScanButton />;
+  return <PlayerScanButton identity={identity} />;
+}
+
+type Identity = NonNullable<ReturnType<typeof useSpacetimeDB>["identity"]>;
+
+function PlayerScanButton({ identity }: { identity: Identity }) {
+  const [players] = useTable(tables.player.where((p) => p.identity.eq(identity)));
+  const playerId = players[0]?.playerId;
+  if (playerId === undefined) return <ScanButton />;
+  return <CharacterScanButton playerId={playerId} />;
+}
+
+function CharacterScanButton({ playerId }: { playerId: number }) {
+  const [characters] = useTable(
+    tables.character.where((c) => c.playerId.eq(playerId)),
+  );
+  const characterId = characters.reduce<number | undefined>(
+    (latest, c) =>
+      latest === undefined || c.characterId > latest ? c.characterId : latest,
+    undefined,
+  );
+  return <ScanButton characterId={characterId} />;
+}
+
+function ScanButton({ characterId }: { characterId?: number }) {
+  const { getConnection, isActive } = useSpacetimeDB();
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<LocationKey | null>(null);
+  const [spawned, setSpawned] = useState<LocationKey | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  const close = () => {
+    setOpen(false);
+    setMessage(null);
+  };
+
+  const select = (found: LocationKey) => {
+    setSelected(found);
+    setError(null);
+    close();
+  };
+
+  const handleScan = (value: string) => {
+    const found = Object.hasOwn(locations, value) ? locations[value] : null;
+    if (!found) {
+      setMessage("something went wrong! that code wasn't valid");
+      return;
+    }
+    select(found);
+  };
+
+  const spawn = async () => {
+    if (pending || !selected) return;
+    setPending(true);
+    setError(null);
+    try {
+      const conn = getConnection() as DbConnection | null;
+      if (!conn || !isActive || characterId === undefined) {
+        throw new Error("Not connected or character not found");
+      }
+      await conn.reducers.changeLocation({
+        characterId,
+        location: { tag: selected },
+      });
+      setSpawned(selected);
+    } catch (error) {
+      console.error("change_location failed", error);
+      setError("couldn't save your location");
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className="btn btn-dash w-full rounded-full"
+        disabled={characterId === undefined}
+        onClick={() => setOpen(true)}
+      >
+        {label}
+      </button>
+      {selected && (
+        <button
+          type="button"
+          className="btn btn-primary w-full rounded-full"
+          disabled={pending || spawned === selected}
+          onClick={() => void spawn()}
+        >
+          {spawned === selected ? "currently at" : "go to"}{" "}
+          {locationLabels[selected]}
+        </button>
+      )}
+      {error && <p className="text-error text-center">{error}</p>}
+      <div className={`modal ${open ? "modal-open" : ""}`} role="dialog">
+        <div className="modal-box">
+          {open && <OverlayScanner onScan={handleScan} />}
+          <p className="text-center mt-3">
+            {message ?? "scan the code where you want to spawn!"}
+          </p>
+          {/* Dev shortcut until QR codes are printed: pick without scanning. */}
+          {process.env.NODE_ENV === "development" && (
+            <div className="join w-full mt-3">
+              {(Object.keys(locationLabels) as LocationKey[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className="btn join-item flex-1"
+                  onClick={() => select(key)}
+                >
+                  {locationLabels[key]}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="modal-action">
+            <button type="button" className="btn rounded-full" onClick={close}>
+              cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
