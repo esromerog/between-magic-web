@@ -5,6 +5,7 @@ import type {
   Size,
   Temperature,
 } from "../lib/module_bindings/types";
+import { locations, type LocationKey } from "./recap/locations";
 import bananaHojicha from "../assets/character_images/P_bh.png";
 import bananaMatcha from "../assets/character_images/P_bm.png";
 import roastedHojicha from "../assets/character_images/P_h.png";
@@ -84,6 +85,8 @@ export type DrinkDraft = {
   temperature?: Temperature["tag"];
   size?: Size["tag"];
   name?: string;
+  // Code from the QR link (e.g. "location-1"); see `locations`.
+  location?: string;
 };
 
 export const maxNameLength = 30;
@@ -105,7 +108,16 @@ export function parseDraft(params: RawParams): DrinkDraft {
     temperature: pick(temperatures, params.get("temperature")),
     size: pick(sizes, params.get("size")),
     name: params.get("name")?.slice(0, maxNameLength) || undefined,
+    location: parseLocation(params.get("location")),
   };
+}
+
+export function parseLocation(code: string | null | undefined) {
+  return code && Object.hasOwn(locations, code) ? code : undefined;
+}
+
+export function locationFromCode(code: string | undefined): LocationKey | undefined {
+  return code && Object.hasOwn(locations, code) ? locations[code] : undefined;
 }
 
 export function draftToQuery(draft: DrinkDraft): string {
