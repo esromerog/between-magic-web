@@ -9,14 +9,14 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
-
 import {
-  SpawnLocation,
+  Biome,
 } from "./types";
 
-export default {
-  characterId: __t.i32(),
-  get location() {
-    return SpawnLocation;
+
+export default __t.row({
+  characterId: __t.i32().primaryKey().name("character_id"),
+  get spawnLocation() {
+    return Biome.name("spawn_location");
   },
-};
+});

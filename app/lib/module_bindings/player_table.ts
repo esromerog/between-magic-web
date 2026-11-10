@@ -14,5 +14,4 @@ export default __t.row({
   identity: __t.identity().primaryKey(),
   playerId: __t.i32().name("player_id"),
   name: __t.string(),
-  activeCharacterId: __t.i32().name("active_character_id"),
 });

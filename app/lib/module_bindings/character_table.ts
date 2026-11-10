@@ -10,17 +10,13 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 import {
-  SpawnLocation,
   Drink,
 } from "./types";
 
 
 export default __t.row({
   characterId: __t.i32().primaryKey().name("character_id"),
-  playerId: __t.i32().name("player_id"),
-  get location() {
-    return SpawnLocation;
-  },
+  ownerId: __t.i32().name("owner_id"),
   name: __t.string(),
   get drink() {
     return Drink;

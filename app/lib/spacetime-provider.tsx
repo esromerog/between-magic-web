@@ -6,6 +6,7 @@ import { DbConnection } from "./module_bindings";
 
 
 const uri = process.env.NEXT_PUBLIC_SPACETIMEDB_URI ?? "ws://127.0.0.1:3000";
+
 const databaseName =
   process.env.NEXT_PUBLIC_SPACETIMEDB_DATABASE ?? "between-magic-db";
 

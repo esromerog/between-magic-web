@@ -11,7 +11,6 @@ import {
 } from "spacetimedb";
 
 import {
-  SpawnLocation,
   Drink,
 } from "./types";
 
@@ -20,7 +19,4 @@ export default {
     return Drink;
   },
   name: __t.string(),
-  get location() {
-    return SpawnLocation;
-  },
 };

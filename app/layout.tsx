@@ -15,8 +15,8 @@ const coinyFont = Coiny({
 });
 
 export const metadata: Metadata = {
-  title: "between magic",
-  description: "Order a drink, create a character, and fight in this world",
+  title: "bommo",
+  description: "Build and conquer this world",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

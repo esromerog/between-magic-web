@@ -6,11 +6,13 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
-import ChangeLocationReducer from "../change_location_reducer";
 import CreateCharacterReducer from "../create_character_reducer";
 import DebugReducer from "../debug_reducer";
+import DespawnCharacterReducer from "../despawn_character_reducer";
+import SpawnCharacterReducer from "../spawn_character_reducer";
 
-export type ChangeLocationParams = __Infer<typeof ChangeLocationReducer>;
 export type CreateCharacterParams = __Infer<typeof CreateCharacterReducer>;
 export type DebugParams = __Infer<typeof DebugReducer>;
+export type DespawnCharacterParams = __Infer<typeof DespawnCharacterReducer>;
+export type SpawnCharacterParams = __Infer<typeof SpawnCharacterReducer>;
 

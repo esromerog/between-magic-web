@@ -10,12 +10,28 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const ActiveCharacter = __t.object("ActiveCharacter", {
+  characterId: __t.i32(),
+  get spawnLocation() {
+    return Biome;
+  },
+});
+export type ActiveCharacter = __Infer<typeof ActiveCharacter>;
+
+// The tagged union or sum type for the algebraic type `Biome`.
+export const Biome = __t.enum("Biome", {
+  Desert: __t.unit(),
+  Ocean: __t.unit(),
+  Forest: __t.unit(),
+  Mountain: __t.unit(),
+  Grassland: __t.unit(),
+  Void: __t.unit(),
+});
+export type Biome = __Infer<typeof Biome>;
+
 export const Character = __t.object("Character", {
   characterId: __t.i32(),
-  playerId: __t.i32(),
-  get location() {
-    return SpawnLocation;
-  },
+  ownerId: __t.i32(),
   name: __t.string(),
   get drink() {
     return Drink;
@@ -52,16 +68,16 @@ export type Drink = __Infer<typeof Drink>;
 export const DrinkBase = __t.enum("DrinkBase", {
   Hojicha: __t.unit(),
   Matcha: __t.unit(),
+  Boba: __t.unit(),
+  Coffee: __t.unit(),
 });
 export type DrinkBase = __Infer<typeof DrinkBase>;
 
 // The tagged union or sum type for the algebraic type `Flavor`.
 export const Flavor = __t.enum("Flavor", {
-  Banana: __t.unit(),
-  Rose: __t.unit(),
-  Vanilla: __t.unit(),
-  Uji: __t.unit(),
-  Roasted: __t.unit(),
+  Plain: __t.unit(),
+  Strawberry: __t.unit(),
+  Blueberry: __t.unit(),
 });
 export type Flavor = __Infer<typeof Flavor>;
 
@@ -76,7 +92,6 @@ export const Player = __t.object("Player", {
   identity: __t.identity(),
   playerId: __t.i32(),
   name: __t.string(),
-  activeCharacterId: __t.i32(),
 });
 export type Player = __Infer<typeof Player>;
 
@@ -86,14 +101,6 @@ export const Size = __t.enum("Size", {
   Large: __t.unit(),
 });
 export type Size = __Infer<typeof Size>;
-
-// The tagged union or sum type for the algebraic type `SpawnLocation`.
-export const SpawnLocation = __t.enum("SpawnLocation", {
-  None: __t.unit(),
-  Room640: __t.unit(),
-  MfaArea: __t.unit(),
-});
-export type SpawnLocation = __Infer<typeof SpawnLocation>;
 
 // The tagged union or sum type for the algebraic type `Temperature`.
 export const Temperature = __t.enum("Temperature", {
