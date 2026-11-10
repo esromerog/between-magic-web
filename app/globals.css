@@ -1,11 +1,94 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: retro --default, dark --prefersdark;
+  themes: false;
+}
 
-  --color-primary: #FF6A94;
+/*
+ * bommo theme — every color in the app lives in this file.
+ * Hex values come from the Figma file (bommo-web). Change them here to tune contrast.
+ */
+@plugin "daisyui/theme" {
+  name: "bommo";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #99f7bf; /* page background (mint) */
+  --color-base-200: #ffffff; /* buttons, inputs, biome cards */
+  --color-base-300: #ffebd6; /* character art card */
+  --color-base-content: #000000; /* text, borders */
+
+  --color-primary: #ff257c; /* shadow under "Go forth" / "Venture in" */
+  --color-primary-content: #ffffff;
+  --color-error: #ff257c; /* "something went wrong" text */
+  --color-error-content: #ffffff;
+
+  /* Not used by the mockups yet; daisyUI needs them defined. */
+  --color-secondary: #71bbe3;
+  --color-secondary-content: #000000;
+  --color-accent: #ffcc49;
+  --color-accent-content: #000000;
+  --color-neutral: #000000;
+  --color-neutral-content: #ffffff;
+  --color-info: #71bbe3;
+  --color-info-content: #000000;
+  --color-success: #69c061;
+  --color-success-content: #000000;
+  --color-warning: #efae74;
+  --color-warning-content: #000000;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem; /* buttons: 8px corners */
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 3px; /* the 3px black outlines */
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  /* Figma uses each font's own ("normal") line height */
+  --text-xl--line-height: normal;
+  --text-2xl--line-height: normal;
+
+  /* Banner with the drink name on the name page */
+  --color-ribbon: #ff497a;
+  --color-ribbon-tail: #db3763; /* the ribbon color, darker */
+  --color-ribbon-content: #ffffff;
+
+  /* Highlight behind the character's name on the confirm page */
+  --color-name-highlight: #ffcc49;
+  /* Highlight behind the character's job (name page and confirm name tag) */
+  --color-job-highlight: #ff497a;
+
+  /* Biomes. Each has a main color (card shadow) and a highlight
+     (behind the biome name, and the card fill once it is locked in). */
+  --color-desert: #efae74;
+  --color-desert-highlight: #efae74;
+  --color-ocean: #71bbe3;
+  --color-ocean-highlight: #71bbe3;
+  --color-forest: #69c061;
+  --color-forest-highlight: #69c061;
+  --color-mountain: #6c6b70;
+  --color-mountain-highlight: #bababa;
 }
 
 @theme inline {
   --font-sans: var(--font-body-custom);
   --font-display: var(--font-display-custom);
+}
+
+/* A button (or something inside it) that is disabled, or that sits in a form
+   that isn't filled in yet. Used by app/components/star-button.tsx. */
+@custom-variant inactive {
+  &:disabled {
+    @slot;
+  }
+  :disabled & {
+    @slot;
+  }
+  form:invalid & {
+    @slot;
+  }
 }

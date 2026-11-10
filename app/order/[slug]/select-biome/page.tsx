@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { biomes } from "@/app/lib/biomes";
 import { getDrinkCharacter } from "@/app/lib/drink_characters";
+import SpawnForm from "./spawn-form";
 
 export default async function SelectBiome({
   params,
@@ -9,20 +8,9 @@ export default async function SelectBiome({
 }: PageProps<"/order/[slug]/select-biome">) {
   const { slug } = await params;
   const { name } = await searchParams;
-  if (!getDrinkCharacter(slug)) notFound();
+  const drink = getDrinkCharacter(slug)?.drink;
+  if (!drink) notFound();
   if (typeof name !== "string" || !name.trim()) redirect(`/order/${slug}`);
-  
-  
-  return (
-    <div>
-      {Object.entries(biomes).map(([id, { displayName }]) => (
-        <Link
-          key={id}
-          href={`/order/${slug}/send?${new URLSearchParams({ name, biome: id })}`}
-        >
-          {displayName}
-        </Link>
-      ))}
-    </div>
-  );
+
+  return <SpawnForm slug={slug} drink={drink} name={name} />;
 }
